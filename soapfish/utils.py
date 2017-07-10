@@ -8,6 +8,7 @@ import keyword
 import logging
 import os
 import re
+import sys
 from datetime import datetime, timedelta
 
 import requests
@@ -225,3 +226,21 @@ def timezone_offset_to_string(offset):
     hours = offset_seconds // 3600
     minutes = (offset_seconds % 3600) // 60
     return '%s%02d:%02d' % (sign, hours, minutes)
+
+
+def main_input(input_, stdin=None):
+    if input_ == '-':
+        xml = stdin.read()
+    else:
+        xml = open_document(input_)
+
+    cwd = os.path.dirname(input_)
+    if '://' in input_:
+        # Trailing slash must exist to urljoin understand it as a folder.
+        # urljoin('http://example.com/x', 'y') == 'http://example.com/y')
+        # urljoin('http://example.com/x/', 'y') == 'http://example.com/x/y')
+        cwd = cwd + '/'
+    else:
+        cwd = os.path.abspath(cwd)
+
+    return xml, cwd

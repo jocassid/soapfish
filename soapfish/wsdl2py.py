@@ -5,7 +5,6 @@ from __future__ import absolute_import, print_function
 
 import argparse
 import logging
-import os
 import sys
 from collections import deque
 
@@ -16,6 +15,7 @@ from .soap import SOAPVersion
 from .utils import (
     find_xsd_namespaces,
     get_rendering_environment,
+    main_input,
     open_document,
     resolve_location,
 )
@@ -138,9 +138,7 @@ def main(argv=None):
     opt = parser.parse_args(sys.argv[1:] if argv is None else argv)
 
     logger.info('Generating %s code for WSDL document: %s' % (opt.target, opt.wsdl))
-    xml = stdin.read() if opt.wsdl == '-' else open_document(opt.wsdl)
-    cwd = opt.wsdl if '://' in opt.wsdl else os.path.abspath(opt.wsdl)
-    cwd = os.path.dirname(cwd)
+    xml, cwd = main_input(opt.wsdl, stdin=stdin)
     code = generate_code_from_wsdl(xml, opt.target, opt.use_wsa, cwd=cwd)
 
     opt.output.write(code.strip())

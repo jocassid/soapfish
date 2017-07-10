@@ -17,6 +17,7 @@ from . import xsdspec
 from .utils import (
     find_xsd_namespaces,
     get_rendering_environment,
+    main_input,
     open_document,
     resolve_location,
 )
@@ -181,9 +182,7 @@ def main(argv=None):
     opt = parser.parse_args(sys.argv[1:] if argv is None else argv)
 
     logger.info('Generating code for XSD document: %s' % opt.xsd)
-    xml = stdin.read() if opt.xsd == '-' else open_document(opt.xsd)
-    cwd = opt.xsd if '://' in opt.xsd else os.path.abspath(opt.xsd)
-    cwd = os.path.dirname(cwd)
+    xml, cwd = main_input(opt.xsd, stdin=stdin)
     code = generate_code_from_xsd(xml, encoding='utf-8', cwd=cwd)
 
     opt.output.write(code.strip())
