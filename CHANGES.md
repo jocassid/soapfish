@@ -1,5 +1,16 @@
 Changes
 =======
+0.6.1 (2017-08-23)
+------------------
+Project forked to fix a recursion issue
+-**Features:**
+  - Add support to break recursion after X loops in case of cyclic definitions in WSDL. e.g.
+    Complex Type A:
+        - Variable A : String
+        - Variable B: Complex Type A
+
+
+
 
 0.6.0 (2017-??-??)
 ------------------
