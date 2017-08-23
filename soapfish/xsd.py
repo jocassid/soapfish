@@ -66,10 +66,6 @@ from iso8601.iso8601 import UTC, FixedOffset  # isort:skip
 logger = logging.getLogger(__name__)
 
 
-# Newest addition, upper limit for cyclic definition in classes i.e. recursion limit after which element is ignored
-# to avoid python recursion exception
-max_recursion=10
-
 NIL = object()
 UNBOUNDED = _Decimal('infinity')
 
@@ -965,6 +961,8 @@ class Complex_PythonType(type):
         return newcls
 
 
+
+
 @functools.total_ordering
 class ComplexType(six.with_metaclass(Complex_PythonType, Type)):
     '''
@@ -973,20 +971,14 @@ class ComplexType(six.with_metaclass(Complex_PythonType, Type)):
     INDICATOR = Sequence  # Indicator see: class Indicators. To be defined in sub-type.
     INHERITANCE = None    # Type of inheritance see: class Inheritance, to be defined in sub-type.
     SCHEMA = None
-    recursion_level=0
     def __new__(cls, *args, **kwargs):
         instance = super(ComplexType, cls).__new__(cls)
 
-        cls.recursion_level+=1
-        if cls.recursion_level > max_recursion:
-            for field in instance._meta.all:
-                if field._passed_type == cls:
-                    pass
-                else:
-                    setattr(instance, field._name, field.empty_value())
-            return instance
         for field in instance._meta.all:
-            setattr(instance, field._name, field.empty_value())
+            try:
+                setattr(instance, field._name, field.empty_value())
+            except RuntimeError as ex:
+                logger.exception("Reccursion exception %s occured on %s for field: %s and was IGNORED"%(str(ex),str(type(cls)),str(field._name)))
         return instance
 
     def __init__(self, **kwargs):
@@ -1157,6 +1149,15 @@ class ComplexType(six.with_metaclass(Complex_PythonType, Type)):
         for element in cls._meta.all:
             element._evaluate_type()
 
+
+class EmptyClass(ComplexType):
+    INHERITANCE = None
+    INDICATOR = Sequence
+
+    @classmethod
+    def create(cls):
+        instance = cls()
+        return instance
 
 class Group(ComplexType):
     '''
