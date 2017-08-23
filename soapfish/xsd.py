@@ -978,7 +978,7 @@ class ComplexType(six.with_metaclass(Complex_PythonType, Type)):
             try:
                 setattr(instance, field._name, field.empty_value())
             except RuntimeError as ex:
-                logger.exception("Reccursion exception %s occured on %s for field: %s and was IGNORED"%(str(ex),str(type(cls)),str(field._name)))
+                logger.warning("Reccursion exception %s occured on %s for field: %s and was IGNORED"%(str(ex),str(cls),str(field._name)))
         return instance
 
     def __init__(self, **kwargs):
