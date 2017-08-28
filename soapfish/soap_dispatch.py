@@ -217,7 +217,9 @@ class SOAPDispatcher(object):
             else:
                 tagname = uncapitalize(response.content.__class__.__name__)
             response.http_content = SOAP.Envelope.response(tagname, response.soap_body, header=response.soap_header)
-
+            ##### NASTY HACK ##### TODO: Fix This Hack!!!#############################################
+            response.http_content = response.http_content.replace("ns0:TicketHeader","TicketHeader")
+            ##########################################################################################
         return self._call_hook('soap-response', dispatcher=self, request=request, response=response)
 
     def handle_wsdl_request(self, request):
