@@ -379,6 +379,8 @@ which is not covered yet.
 
 .. code-block:: python
 
+    from soapfish import soap
+    
     SERVICE = soap.Service(
         targetNamespace='http://code.google.com/p/soapfish/stock.wsdl',
         location='http://127.0.0.1:8000/stock',  # where request should be sent.
