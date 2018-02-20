@@ -254,7 +254,7 @@ string `?wsdl` appended will give the current WSDL with XSD embedded.
     SERVICE = soap.Service(
         targetNamespace='http://www.example.com/ops.wsdl',
         location='http://www.example.com/ws/ops',
-        schema=Schema,
+        schemas=[Schema],
         methods=[PutOps_method],
     )
 
@@ -297,7 +297,7 @@ change <fill the module path> to point file where to code was generated.
     SERVICE = soap.Service(
         targetNamespace='http://www.example.com/ops.wsdl',
         location='http://www.example.com/ws/ops',
-        schema=Schema,
+        schemas=[Schema],
         methods=[PutOps_method],
     )
 
@@ -384,7 +384,7 @@ which is not covered yet.
     SERVICE = soap.Service(
         targetNamespace='http://code.google.com/p/soapfish/stock.wsdl',
         location='http://127.0.0.1:8000/stock',  # where request should be sent.
-        schema=Schema,
+        schemas=[Schema],
         methods=[get_stock_price_method],
     )
 
