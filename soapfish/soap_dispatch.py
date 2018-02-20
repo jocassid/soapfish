@@ -101,18 +101,18 @@ class SOAPDispatcher(object):
             except StopIteration:
                 raise SOAPError(SOAP.Code.CLIENT, 'Invalid SOAP action: %s' % action)
 
-        else:
-            logger.debug('Finding handler using root tag of the SOAP body: %s', root_tag)
-            try:
-                return next(m for m in self.service.methods if m.input == root_tag)
-            except StopIteration:
-                pass  # fall through and check for substitution group element
-            try:
-                # FIXME: Improve handling of namespaces to be less hacky...
-                e = next(e for s in self.service.schemas for n, e in s.elements.items() if n == root_tag)
-                return next(m for m in self.service.methods if m.input == e.substitutionGroup.split(':')[-1])
-            except StopIteration:
-                raise SOAPError(SOAP.Code.CLIENT, 'Missing SOAP action and invalid root tag: %s' % root_tag)
+        logger.debug('Finding handler using root tag of the SOAP body: %s', root_tag)
+        try:
+            return next(m for m in self.service.methods if m.input == root_tag)
+        except StopIteration:
+            pass  # fall through and check for substitution group element
+
+        try:
+            # FIXME: Improve handling of namespaces to be less hacky...
+            e = next(e for s in self.service.schemas for n, e in s.elements.items() if n == root_tag)
+            return next(m for m in self.service.methods if m.input == e.substitutionGroup.split(':')[-1])
+        except StopIteration:
+            raise SOAPError(SOAP.Code.CLIENT, 'Missing SOAP action and invalid root tag: %s' % root_tag)
 
     def _parse_header(self, handler, soap_header):
         # TODO return soap fault if header is required but missing in the input
@@ -160,6 +160,7 @@ class SOAPDispatcher(object):
         self._validate_body(envelope.Body)
 
     def _prepare_request(self, request):
+        """sets request.method, request.soap_header, and request.soap_body"""
         SOAP = self.service.version
 
         soap_envelope = self._parse_soap_content(request.http_content)
