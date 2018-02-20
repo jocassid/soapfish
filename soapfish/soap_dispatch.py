@@ -181,13 +181,23 @@ class SOAPDispatcher(object):
         qs = six.moves.urllib.parse.parse_qs(qs, keep_blank_values=True)
         if request_method == 'GET' and six.viewkeys(qs) & {'wsdl', 'singleWsdl'}:
             return self.handle_wsdl_request(request)
-        elif request_method == 'GET' and 'xsd' in qs:
+        if request_method == 'GET' and 'xsd' in qs:
             return self.handle_xsd_request(request)
-        elif request_method == 'POST':
+        if request_method == 'POST':
             return self.handle_soap_request(request)
+
+        pieces = ['Bad Request: ']
+        if request_method == 'GET':
+            pieces.append("GET request without wsd, singleWsdl, or xsd in query string")
         else:
-            return SOAPResponse('bad request', http_status_code=400, http_content='bad_request',
-                                http_headers={'Content-Type': 'text/plain'})
+            pieces.append("Unsupported method ")
+            pieces.append(request_method)
+
+        return SOAPResponse(
+            message, 
+            http_status_code=400, 
+            http_content=message,
+            http_headers={'Content-Type': 'text/plain'})
 
     def handle_soap_request(self, request):
         request = self._call_hook('soap-request', dispatcher=self, request=request)
