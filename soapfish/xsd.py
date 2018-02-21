@@ -62,6 +62,7 @@ from .xsd_types import XSDDate
 
 logger = logging.getLogger(__name__)
 
+
 NIL = object()
 UNBOUNDED = _Decimal('infinity')
 
@@ -957,6 +958,8 @@ class Complex_PythonType(type):
         return newcls
 
 
+
+
 @functools.total_ordering
 class ComplexType(six.with_metaclass(Complex_PythonType, Type)):
     '''
@@ -965,11 +968,14 @@ class ComplexType(six.with_metaclass(Complex_PythonType, Type)):
     INDICATOR = Sequence  # Indicator see: class Indicators. To be defined in sub-type.
     INHERITANCE = None    # Type of inheritance see: class Inheritance, to be defined in sub-type.
     SCHEMA = None
-
     def __new__(cls, *args, **kwargs):
         instance = super(ComplexType, cls).__new__(cls)
+
         for field in instance._meta.all:
-            setattr(instance, field._name, field.empty_value())
+            try:
+                setattr(instance, field._name, field.empty_value())
+            except RuntimeError as ex:
+                logger.warning("Reccursion exception %s occured on %s for field: %s and was IGNORED"%(str(ex),str(cls),str(field._name)))
         return instance
 
     def __init__(self, **kwargs):
@@ -1140,6 +1146,15 @@ class ComplexType(six.with_metaclass(Complex_PythonType, Type)):
         for element in cls._meta.all:
             element._evaluate_type()
 
+
+class EmptyClass(ComplexType):
+    INHERITANCE = None
+    INDICATOR = Sequence
+
+    @classmethod
+    def create(cls):
+        instance = cls()
+        return instance
 
 class Group(ComplexType):
     '''

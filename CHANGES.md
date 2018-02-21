@@ -1,5 +1,22 @@
 Changes
 =======
+0.6.2 (2017-08-23)
+------------------
+- fix from 0.6.1 enabled server class to start but caused issue when instancing a class which referrenced it self. so,
+the fix was simplified to simply try instancing and if it fails, returns. Seems to work better.
+
+
+0.6.1 (2017-08-23)
+------------------
+Project forked to fix a recursion issue
+-**Features:**
+  - Add support to break recursion after X loops in case of cyclic definitions in WSDL. e.g.
+    Complex Type A:
+        - Variable A : String
+        - Variable B: Complex Type A
+
+
+
 
 0.6.0 (2017-??-??)
 ------------------
