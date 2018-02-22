@@ -268,11 +268,24 @@ class SOAPDispatcher(object):
 
     def _call_hook(self, name, **kw):
         hook = self.hooks.get(name)
-        obj = hook(**kw) if hook is not None else kw[name.split('-').pop()]
-        if name.endswith('-request') and not isinstance(obj, SOAPRequest):
-            raise TypeError('Request hooks must return a SOAPRequest.')
-        if name.endswith('-response') and not isinstance(obj, SOAPResponse):
-            raise TypeError('Response hooks must return a SOAPResponse.')
+        request_or_response = name.split('-')[-1]
+
+        if hook is None:
+            obj = kw[request_or_response]
+        else:
+            obj = hook(**kw)
+
+        if request_or_response == 'request':
+            validation_type = SOAPRequest
+        elif request_or_response == 'response':
+            validation_type = SOAPResponse
+        else:
+            return obj
+
+        if not isinstance(obj, validation_type):
+            raise TypeError("{} hooks must return a {}".format(
+                request_or_response.capitalize(),
+                validation_type.__name__))
         return obj
 
 
