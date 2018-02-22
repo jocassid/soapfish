@@ -622,9 +622,11 @@ class Element(object):
     def __init__(self, _type, minOccurs=1, tagname=None, nillable=False,
                  default=None, namespace=None, substitutionGroup=None):
         '''
-        :param _type: Class or instance of class that inherits from Type,
-                      usually a child of SimpleType from the xsd package, or
-                      a user defined class that inherits from ComplexType.
+        :param _type: Type class or subclass, instance of Type subclass, or 
+                        string of the form MODULE.TYPE_NAME.  When passing
+                        Type class or Type instance this is usually a child of 
+                        SimpleType from the xsd package, or a user defined 
+                        class that inherits from ComplexType.
         :param minOccurs: int, how many times this object can appear in valid
                           XML can be 0 or 1. See: difference between Element
                           and ListElement.
