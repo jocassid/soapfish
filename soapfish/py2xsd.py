@@ -167,22 +167,27 @@ def build_includes(xsd_schema, includes):
 
 
 def generate_xsdspec(schema):
-    xsd_schema = xsdspec.Schema()
-    xsd_schema.targetNamespace = schema.targetNamespace
-    xsd_schema.elementFormDefault = schema.elementFormDefault
+    """
 
-    build_imports(xsd_schema, schema.imports)
-    build_includes(xsd_schema, schema.includes)
+    :param schema: A soapfish.xsd.Schema object
+    :return: A soapfish.xsdspec.Schema object
+    """
+    xsdspec_schema = xsdspec.Schema()
+    xsdspec_schema.targetNamespace = schema.targetNamespace
+    xsdspec_schema.elementFormDefault = schema.elementFormDefault
+
+    build_imports(xsdspec_schema, schema.imports)
+    build_includes(xsdspec_schema, schema.includes)
     for st in schema.simpleTypes:
         xsd_st = xsd_simpleType(st)
-        xsd_schema.simpleTypes.append(xsd_st)
+        xsdspec_schema.simpleTypes.append(xsd_st)
 
     for ct in schema.complexTypes:
         xsd_ct = xsd_complexType(ct)
-        xsd_schema.complexTypes.append(xsd_ct)
+        xsdspec_schema.complexTypes.append(xsd_ct)
 
-    generate_elements(xsd_schema, schema)
-    return xsd_schema
+    generate_elements(xsdspec_schema, schema)
+    return xsdspec_schema
 
 
 def generate_elements(xsd_schema, schema):
@@ -204,6 +209,12 @@ def generate_elements(xsd_schema, schema):
 
 
 def generate_xsd(schema):
+    """
+    Convert a soapfish.xsd.Schema into an etree.Element representing a W3C
+    xs:schema element.
+    :param schema: A soapfish.xsd.Schema object
+    :return:
+    """
     xsd_schema = generate_xsdspec(schema)
 
     xmlelement = etree.Element(
