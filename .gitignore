@@ -16,3 +16,6 @@ bin/
 lib/
 include/
 local/
+man/
+.idea/
+.pytest_cache/
