@@ -147,15 +147,19 @@ def xsd_simpleType(st):
     return xsd_simpleType
 
 
-def build_imports(xsd_schema, imports):
-    counter = 0
+def build_imports(xsdspec_schema, imports):
+    """
+
+    :param xsdspec_schema: A soapfish.xsdspec.Schema object.
+    :param imports: Imports from the soapfish.xsd.Schema object
+    :return:
+    """
     for _import in imports:
-        xsd_import = xsdspec.Import()
-        xsd_import.namespace = _import.targetNamespace
+        xsdspec_import = xsdspec.Import()
+        xsdspec_import.namespace = _import.targetNamespace
         if _import.location:
-            xsd_import.schemaLocation = _import.location
-        xsd_schema.imports.append(xsd_import)
-        counter += 1
+            xsdspec_import.schemaLocation = _import.location
+        xsdspec_schema.imports.append(xsdspec_import)
 
 
 def build_includes(xsd_schema, includes):
@@ -166,46 +170,46 @@ def build_includes(xsd_schema, includes):
         xsd_schema.includes.append(xsd_include)
 
 
-def generate_xsdspec(schema):
+def generate_xsdspec(xsd_schema):
     """
 
-    :param schema: A soapfish.xsd.Schema object
+    :param xsd_schema: A soapfish.xsd.Schema object
     :return: A soapfish.xsdspec.Schema object
     """
     xsdspec_schema = xsdspec.Schema()
-    xsdspec_schema.targetNamespace = schema.targetNamespace
-    xsdspec_schema.elementFormDefault = schema.elementFormDefault
+    xsdspec_schema.targetNamespace = xsd_schema.targetNamespace
+    xsdspec_schema.elementFormDefault = xsd_schema.elementFormDefault
 
-    build_imports(xsdspec_schema, schema.imports)
-    build_includes(xsdspec_schema, schema.includes)
-    for st in schema.simpleTypes:
+    build_imports(xsdspec_schema, xsd_schema.imports)
+    build_includes(xsdspec_schema, xsd_schema.includes)
+    for st in xsd_schema.simpleTypes:
         xsd_st = xsd_simpleType(st)
         xsdspec_schema.simpleTypes.append(xsd_st)
 
-    for ct in schema.complexTypes:
-        xsd_ct = xsd_complexType(ct)
-        xsdspec_schema.complexTypes.append(xsd_ct)
+    for ct in xsd_schema.complexTypes:
+        xsdspec_ct = xsd_complexType(ct)
+        xsdspec_schema.complexTypes.append(xsdspec_ct)
 
-    generate_elements(xsdspec_schema, schema)
+    generate_elements(xsdspec_schema, xsd_schema)
     return xsdspec_schema
 
 
-def generate_elements(xsd_schema, schema):
-    for name, element in six.iteritems(schema.elements):
-        xsd_element = xsdspec.Element()
-        xsd_element.name = name
+def generate_elements(xsdspec_schema, xsd_schema):
+    for name, xsd_element in six.iteritems(xsd_schema.elements):
+        xsdspec_element = xsdspec.Element()
+        xsdspec_element.name = name
 
         # TODO: Support non-string values for substitutionGroup:
-        if element.substitutionGroup is not None:
-            value = element.substitutionGroup
-            xsd_element.substitutionGroup = value if value.startswith('sns:') else 'sns:%s' % value
+        if xsd_element.substitutionGroup is not None:
+            value = xsd_element.substitutionGroup
+            xsdspec_element.substitutionGroup = value if value.startswith('sns:') else 'sns:%s' % value
 
-        if isinstance(element._passed_type, six.string_types) or inspect.isclass(element._passed_type):
-            xsd_element.type = get_xsd_type(element._type)
+        if isinstance(xsd_element._passed_type, six.string_types) or inspect.isclass(xsd_element._passed_type):
+            xsdspec_element.type = get_xsd_type(xsd_element._type)
         else:
-            xsd_element.complexType = xsd_complexType(element._type.__class__, named=False)
+            xsdspec_element.complexType = xsd_complexType(xsd_element._type.__class__, named=False)
 
-        xsd_schema.elements.append(xsd_element)
+        xsdspec_schema.elements.append(xsdspec_element)
 
 
 def generate_xsd(schema):
@@ -213,11 +217,11 @@ def generate_xsd(schema):
     Convert a soapfish.xsd.Schema into an etree.Element representing a W3C
     xs:schema element.
     :param schema: A soapfish.xsd.Schema object
-    :return:
+    :return: A soapfish.xsdspec instance
     """
-    xsd_schema = generate_xsdspec(schema)
+    xsdspec_schema = generate_xsdspec(schema)
 
-    xmlelement = etree.Element(
+    etree_schema_element = etree.Element(
         '{%s}schema' % ns.xsd,
         nsmap={
             'sns': schema.targetNamespace,
@@ -225,11 +229,11 @@ def generate_xsd(schema):
         },
     )
 
-    xsd_schema.render(xmlelement,
-                      xsd_schema,
+    xsdspec_schema.render(etree_schema_element,
+                      xsdspec_schema,
                       namespace=xsdspec.XSD_NAMESPACE,
                       elementFormDefault=xsd.ElementFormDefault.QUALIFIED)
-    return xmlelement
+    return etree_schema_element
 
 
 def schema_validator(schemas):
