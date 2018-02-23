@@ -1027,14 +1027,14 @@ class ComplexType(six.with_metaclass(Complex_PythonType, Type)):
         else:
             raise ValueError('Wrong value object type %r for %s.' % (value, self.__class__.__name__))
 
-    def render(self, parent, instance, namespace=None, elementFormDefault=None):
+    def render(self, parent_etree_element, instance, namespace=None, elementFormDefault=None):
         if instance is None:
             return None
         if self.SCHEMA:
             namespace = self.SCHEMA.targetNamespace
         for field in instance._meta.all:
             field.render(
-                parent=parent,
+                parent=parent_etree_element,
                 field_name=field.tagname or field._name,
                 value=getattr(instance, field._name),
                 namespace=namespace,
