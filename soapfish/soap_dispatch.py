@@ -187,13 +187,14 @@ class SOAPDispatcher(object):
         if request_method == 'POST':
             return self.handle_soap_request(request)
 
-        pieces = ['Bad Request: ']
+        pieces = ['Bad Request:']
         if request_method == 'GET':
             pieces.append("GET request without wsd, singleWsdl, or xsd in query string")
         else:
             pieces.append("Unsupported method ")
             pieces.append(request_method)
 
+        message = ' '.join(pieces)    
         return SOAPResponse(
             message, 
             http_status_code=400, 
