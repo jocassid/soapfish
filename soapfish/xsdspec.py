@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 
+"""
+This module uses the classes defined in soapfish.xsd to define elements
+for a W3C schema.
+"""
+# TODO: could we move this functionality into the soapfish.xsd classes?
+
+
 from __future__ import absolute_import
 
 import itertools
