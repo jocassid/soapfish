@@ -59,7 +59,15 @@ class XSDChoiceTest(unittest.TestCase):
         assert_none(result.message)
         assert_equals('123', result.code)
 
+    def test_choice_xsd(self):
+        schema = self._choice_schema()
+        xsd = generate_xsd(schema)
+        assert xsd is not None
+        print(etree.tostring(xsd, pretty_print=True))
+        assert False
+
     def _result_wrap(self, child_string):
+        """Wrap string with <result> </result> tags"""
         return '<result xmlns="http://foo.example/">%s</result>' % child_string
 
     def assert_is_valid(self, xml_string, soapfish_schema):
